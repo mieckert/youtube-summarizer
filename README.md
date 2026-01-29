@@ -5,6 +5,14 @@ a playlist and turns them into one pager text summary and a 2-minute audio brief
 
 It is implemented as a bash script for MacOS and uses only AI models and tools running locally on Apple Silicon.
 
+# Used AI models / tools
+
+* [parakeet-mlx](https://github.com/senstella/parakeet-mlx) is used to transcribe the videos' audio (speech-to-text)
+* [Ollama](https://ollama.com/) is used with [Ministral 3](https://ollama.com/library/ministral-3) to turn 
+  transcripts into summaries and the text of audio briefs
+* [mlx-audio](https://github.com/Blaizzy/mlx-audio) is used with [Kokoro-82M-bf16](https://github.com/Blaizzy/mlx-audio) 
+  to generate audio (text-to-speech)
+
 # Installation / Dependencies
 
 A few things need to be installed on your system:
