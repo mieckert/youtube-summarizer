@@ -7,11 +7,28 @@ set -eaxo pipefail
 mkdir -p audio audio-summary-text audio-summary summaries transcripts
 
 cd audio
-for URL in "${CHANNELS[@]}"; do
-    echo "--- Processing: $URL ---"
+if [[ ! " $* " =~ " --skip-download " ]]; then
+	for URL in "${CHANNELS[@]}"; do
+    	echo "--- Processing: $URL ---"
+		yt-dlp --extract-audio --audio-format mp3 \
+			--cookies-from-browser chrome \
+			--lazy-playlist --break-match-filters "upload_date >= 20260203" \
+			--no-post-overwrites \
+			--no-overwrites \
+			--download-archive downloaded-videos.txt \
+			--write-description \
+			--add-metadata \
+			--write-info-json \
+			--restrict-filenames \
+			-o "%(timestamp>%Y-%m-%d_%H-%M)s_%(uploader_id|replace:@:)s.%(ext)s" \
+			"${URL}" \
+			|| true
+		done
+
+	URL="$PLAYLIST"
+	echo "--- Processing: $URL ---"
 	yt-dlp --extract-audio --audio-format mp3 \
 		--cookies-from-browser chrome \
-		--lazy-playlist --break-match-filters "upload_date >= 20260101" \
 		--no-post-overwrites \
 		--no-overwrites \
 		--download-archive downloaded-videos.txt \
@@ -19,25 +36,13 @@ for URL in "${CHANNELS[@]}"; do
 		--add-metadata \
 		--write-info-json \
 		--restrict-filenames \
-		-o "%(timestamp>%Y-%m-%d_%H-%M)s_%(uploader_id|replace:@:)s.%(ext)s" \
+		-o "%(timestamp>%Y-%m-%d_%H-%M)s_%(uploader_id|replace:@:)s_playlist.%(ext)s" \
 		"${URL}" \
 		|| true
-done
+else
+	echo "Skipping download (--skip-download paramter specified)"
+fi
 
-URL="$PLAYLIST"
-echo "--- Processing: $URL ---"
-yt-dlp --extract-audio --audio-format mp3 \
-	--cookies-from-browser chrome \
-	--no-post-overwrites \
-	--no-overwrites \
-	--download-archive downloaded-videos.txt \
-	--write-description \
-	--add-metadata \
-	--write-info-json \
-	--restrict-filenames \
-	-o "%(timestamp>%Y-%m-%d_%H-%M)s_%(uploader_id|replace:@:)s_playlist.%(ext)s" \
-	"${URL}" \
-	|| true
 
 for i in *.mp3; do
 	if [ -f ../transcripts/${i%.mp3}.txt ]; then
@@ -85,6 +90,7 @@ for i in *.txt; do
 		continue
 	fi
 	# (!) --file_prefix needs to be just ${i%.txt} without the .mp3 extension
-	uvx --python=3.13 --with mlx-audio --with pip python -m mlx_audio.tts.generate --model mlx-community/Kokoro-82M-bf16 --lang_code a --join_audio --audio_format mp3 --file_prefix ../audio-summary/${i%.txt} --text "$(cat $i)"
+	uvx --python=3.13 --with "mlx-audio==0.2.10" --with pip python -m mlx_audio.tts.generate --model mlx-community/Kokoro-82M-bf16 --lang_code a --join_audio --audio_format mp3 --file_prefix ../audio-summary/${i%.txt} --text "$(cat $i)"
+	#uvx --python=3.13 --with mlx-audio --with pip --with misaki --with num2words --with "spacy>=3.8,<4" --with phonemizer --with espeakng_loader python -m mlx_audio.tts.generate --model mlx-community/Kokoro-82M-bf16 --lang_code a --join_audio --audio_format mp3 --file_prefix ../audio-summary/${i%.txt} --text "$(cat $i)"
 done
 cd ..

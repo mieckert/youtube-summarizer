@@ -7,3 +7,4 @@ multiagent/
 config.sh
 .DS_Store
 *~
+rsync.sh
