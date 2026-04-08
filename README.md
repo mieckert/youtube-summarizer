@@ -26,6 +26,10 @@ A few things need to be installed on your system:
   this uses the Modelfile in this repository)
 * If you want receive email with the text summary, your `mail` command should be configured;
   instruction on how to configure is with `msmtp` (`brew install msmtp`) later.
+* ansifilter (`brew install ansifilter`) is currently required to strip out ANSI Escape codes 
+  that Ollama produces in its output; probably can be removed with later version of Ollama
+  (see this Github [issue](https://github.com/ollama/ollama/issues/14571) 
+  and [PR](https://github.com/ollama/ollama/pull/14670)) 
 
 ## Configuration
 

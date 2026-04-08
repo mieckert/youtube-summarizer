@@ -61,7 +61,8 @@ for i in *.txt; do
 		continue
 	fi
 	cat $i | ollama run ministral-3-32k \
-		"Write a 2-3 paragraph summary of the following text focusing on the main ideas, topics, and conclusions. The text is a transcript of a Youtube video and may contain transcription errors. For context, the video deals with Artificial Intelligence, LLMs, Agents, and so on. Output the summary in markdown format, starting directly with the summary without any preceeding remarks. TEXT:\n\n" > "$dest"
+		"Write a 2-3 paragraph summary of the following text focusing on the main ideas, topics, and conclusions. The text is a transcript of a Youtube video and may contain transcription errors. For context, the video deals with Artificial Intelligence, LLMs, Agents, and so on. Output the summary in markdown format, starting directly with the summary without any preceeding remarks. TEXT:\n\n" \
+		| ansifilter > "$dest"
 	
 	if [ -n "$SEND_EMAIL_TO" ]; then
 		title=$(cat ../audio/${i%.txt}.info.json | jq  -r ".title")
@@ -78,7 +79,8 @@ for i in *.md; do
 		continue
 	fi
 	cat $i | ollama run ministral-3-32k \
-		"Turn the following markdown document into text suitable for text-to-speech. Do not use any special characters in the output. Remove any conversational intro that comes before the first headline.  Output only the text without introductory remarks.  TEXT:\n\n" > "$dest"
+		"Turn the following markdown document into text suitable for text-to-speech. Do not use any special characters in the output. Remove any conversational intro that comes before the first headline.  Output only the text without introductory remarks.  TEXT:\n\n" \
+		| ansifilter > "$dest"
 
 done
 cd ..
